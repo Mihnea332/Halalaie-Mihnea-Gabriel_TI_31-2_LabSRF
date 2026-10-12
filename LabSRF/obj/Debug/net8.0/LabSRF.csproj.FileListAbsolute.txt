@@ -1,0 +1,15 @@
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\bin\Debug\net8.0\LabSRF.exe
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\bin\Debug\net8.0\LabSRF.deps.json
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\bin\Debug\net8.0\LabSRF.runtimeconfig.json
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\bin\Debug\net8.0\LabSRF.dll
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\bin\Debug\net8.0\LabSRF.pdb
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.AssemblyInfoInputs.cache
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.AssemblyInfo.cs
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.csproj.CoreCompileInputs.cache
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.sourcelink.json
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.dll
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\refint\LabSRF.dll
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.pdb
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\LabSRF.genruntimeconfig.cache
+C:\Users\Mihnea\source\repos\LabSRF\LabSRF\obj\Debug\net8.0\ref\LabSRF.dll
