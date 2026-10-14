@@ -3,14 +3,16 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using WordFrequency;
 
 internal class Program
 {
-    static string Filter(string text,HashSet<string> stopWords)
+    static string Filter(string text,HashSet<string> stopWords,PorterStemmer stemmer)
     {
         string cleanedText= Regex.Replace(text, @"[^\p{L}\s]+", " ");
+
         var filtered=cleanedText.Split(new[] { ' ', '\t', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-            .Where(w => !stopWords.Contains(w));
+            .Where(w => !stopWords.Contains(w)).Select(w=>stemmer.StemWord(w));
         return string.Join(" ", filtered);
     }
     static void Main()
@@ -21,8 +23,8 @@ internal class Program
         HashSet<string> stopWordsSet = new HashSet<string>(
                     stopWords.Select(w => w.Trim().ToLower()),
                     StringComparer.OrdinalIgnoreCase
-                ); foreach (string word in stopWords)
-            Console.WriteLine(word);
+                );
+        PorterStemmer stemmer = new PorterStemmer();
         if (!Directory.Exists(rootPath)) return;
 
         foreach (string xmlFile in Directory.EnumerateFiles(rootPath, "*.xml", SearchOption.AllDirectories))
@@ -41,7 +43,7 @@ internal class Program
                                       .Where(attr => !string.IsNullOrEmpty(attr));
                 var content = titles.Concat(paragraphs)
                                                     .Concat(codesClasses)
-                                                    .Select(line => Filter(line.ToLower(),stopWordsSet))
+                                                    .Select(line => Filter(line.ToLower(),stopWordsSet,stemmer))
                                                     .Where(line => !string.IsNullOrWhiteSpace(line))
                                                     .ToList(); string txtFile = Path.ChangeExtension(xmlFile, ".txt");
                 
