@@ -20,13 +20,15 @@ internal class Program
         string rootPath = @"C:\Users\Mihnea\Desktop\Reuters";
         var file = File.ReadAllLines(@"C:\Users\Mihnea\Desktop\Reuters\stopwords.txt");
         var stopWords = new List<string>(file);
+        List<string> globalDictionary = new List<string>();
         HashSet<string> stopWordsSet = new HashSet<string>(
                     stopWords.Select(w => w.Trim().ToLower()),
                     StringComparer.OrdinalIgnoreCase
                 );
         PorterStemmer stemmer = new PorterStemmer();
         if (!Directory.Exists(rootPath)) return;
-
+        Dictionary<string, List<string>> fileWordsCache = new Dictionary<string, List<string>>();
+        List<string> documentLines = new List<string>();
         foreach (string xmlFile in Directory.EnumerateFiles(rootPath, "*.xml", SearchOption.AllDirectories))
         {
             try
@@ -41,18 +43,54 @@ internal class Program
                                       .Descendants("codes")
                                       .Select(c => (string)c.Attribute("class"))
                                       .Where(attr => !string.IsNullOrEmpty(attr));
-                var content = titles.Concat(paragraphs)
-                                                    .Concat(codesClasses)
-                                                    .Select(line => Filter(line.ToLower(),stopWordsSet,stemmer))
-                                                    .Where(line => !string.IsNullOrWhiteSpace(line))
-                                                    .ToList(); string txtFile = Path.ChangeExtension(xmlFile, ".txt");
+                var lines = titles.Concat(paragraphs).Concat(codesClasses);
+                List<string> fileWords = new List<string>();
+                foreach(string line in lines)
+                {
+                    string filteredLine = Filter(line.ToLower(), stopWordsSet, stemmer);
+                    if(!string.IsNullOrWhiteSpace(filteredLine))
+                    {
+                        string[] words = filteredLine.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        fileWords.AddRange(words);
+                    }
+                }
+                if (fileWords.Count == 0) continue;
+
+                string txtFile = Path.ChangeExtension(xmlFile, ".txt");
+                File.WriteAllText(txtFile, string.Join(" ", fileWords));
+                fileWordsCache[xmlFile] = fileWords;
+                foreach(string word in fileWords)
+                {
+                    if (!globalDictionary.Contains(word))
+                        globalDictionary.Add(word);
+                }
                 
-                File.WriteAllLines(txtFile, content);
-                
+
             }
             catch
             {
             }
+
         }
+        foreach(var kvp in fileWordsCache)
+        {
+            string xmlFile = kvp.Key;
+            List<string> fileWords = kvp.Value;
+            Dictionary<int, int> dictionary = new Dictionary<int, int>();
+            foreach (string word in fileWords)
+            {
+                int index = globalDictionary.IndexOf(word);
+                if (!dictionary.ContainsKey(index))
+                {
+                    dictionary[index] = 0;
+                }
+                dictionary[index]++;
+            }
+            var entries=dictionary.Select(element=>$"{element.Key}:{element.Value}");
+            string line = string.Join(" ", entries);
+            documentLines.Add($"{Path.GetFileName(xmlFile)} -> {line}");
+        }    
+        File.WriteAllLines(Path.Combine(rootPath, "globalDictionary.txt"), globalDictionary);
+        File.AppendAllLines(Path.Combine(rootPath, "globalDictionary.txt"), documentLines);
     }
 }
