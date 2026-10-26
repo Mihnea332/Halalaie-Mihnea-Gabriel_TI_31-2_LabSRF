@@ -28,6 +28,8 @@ internal class Program
         PorterStemmer stemmer = new PorterStemmer();
         if (!Directory.Exists(rootPath)) return;
         Dictionary<string, List<string>> fileWordsCache = new Dictionary<string, List<string>>();
+        Dictionary<string, List<string>> fileTopicsCache = new Dictionary<string, List<string>>();
+        Dictionary<string, string> fileFolderCache = new Dictionary<string, string>();
         List<string> documentLines = new List<string>();
         foreach (string xmlFile in Directory.EnumerateFiles(rootPath, "*.xml", SearchOption.AllDirectories))
         {
@@ -39,12 +41,13 @@ internal class Program
                                     .Descendants("p")
                                     .Select(p => p.Value?.Trim())
                                     .Where(p => !string.IsNullOrEmpty(p));
-                var codesClasses = doc.Descendants("metadata")
-                                      .Descendants("codes")
-                                      .Select(c => (string)c.Attribute("class"))
-                                      .Where(attr => !string.IsNullOrEmpty(attr));
-                var lines = titles.Concat(paragraphs).Concat(codesClasses);
+                var topics = doc.Descendants("codes").Where(c => (string)c.Attribute("class") == "bip:topics:1.0")
+                                .Descendants("code")
+                                .Select(c => (string)c.Attribute("code"))
+                                .ToList();
                 List<string> fileWords = new List<string>();
+                var lines = titles.Concat(paragraphs);
+                string folderName = new DirectoryInfo(Path.GetDirectoryName(xmlFile)).Name;
                 foreach(string line in lines)
                 {
                     string filteredLine = Filter(line.ToLower(), stopWordsSet, stemmer);
@@ -59,6 +62,8 @@ internal class Program
                 string txtFile = Path.ChangeExtension(xmlFile, ".txt");
                 File.WriteAllText(txtFile, string.Join(" ", fileWords));
                 fileWordsCache[xmlFile] = fileWords;
+                fileFolderCache[xmlFile] = folderName;
+                fileTopicsCache[xmlFile] = topics;
                 foreach(string word in fileWords)
                 {
                     if (!globalDictionary.Contains(word))
@@ -76,6 +81,8 @@ internal class Program
         {
             string xmlFile = kvp.Key;
             List<string> fileWords = kvp.Value;
+            List<string> topics = fileTopicsCache[xmlFile];
+            string folderName = fileFolderCache[xmlFile];
             Dictionary<int, int> dictionary = new Dictionary<int, int>();
             foreach (string word in fileWords)
             {
@@ -87,10 +94,20 @@ internal class Program
                 dictionary[index]++;
             }
             var entries=dictionary.Select(element=>$"{element.Key}:{element.Value}");
-            string line = string.Join(" ", entries);
-            documentLines.Add($"{Path.GetFileName(xmlFile)} -> {line}");
-        }    
-        File.WriteAllLines(Path.Combine(rootPath, "globalDictionary.txt"), globalDictionary);
-        File.AppendAllLines(Path.Combine(rootPath, "globalDictionary.txt"), documentLines);
+            string vectorString = string.Join(" ", entries);
+            string topicsString = string.Join(" ", topics);
+            string name = Path.GetFileNameWithoutExtension(xmlFile);
+            string finalLine = $"{name} # {vectorString} # {topicsString} # {folderName}";
+            documentLines.Add(finalLine);
+        }
+        List<string> finalOutput = new List<string>();
+        foreach(string word in globalDictionary)
+        {
+            finalOutput.Add($"@attribute {word}");
+        }
+        finalOutput.Add(" ");
+        finalOutput.Add("@data");
+        finalOutput.AddRange(documentLines);
+        File.WriteAllLines(Path.Combine(rootPath, "rezultat.txt"), finalOutput);
     }
 }
