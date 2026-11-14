@@ -89,6 +89,8 @@ namespace LabSRF
 
             List<string> newFileLines = new List<string>();
 
+            List<Attribute> allAttributes = new List<Attribute>();
+
             for (int i = 0; i < attributes.Count; i++)
             {
                 string attributeName = attributes[i];
@@ -103,25 +105,73 @@ namespace LabSRF
 
                 double infoGain = entropy - (weightWith * entropyWith) - (weightWithout * entropyWithout);
 
+                Attribute attribute = new Attribute(i,attributeName,infoGain);
+                allAttributes.Add(attribute);
+               
                 string formattedIG = infoGain.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
                 newFileLines.Add($"@attribute {attributeName} {formattedIG}");
             }
 
-            newFileLines.Add("");
-            newFileLines.Add("@data");
+            List<Attribute> selectedAttributes = allAttributes.OrderByDescending(a => a.InfoGain).Take(500).ToList();
+            Dictionary<int, int> oldToNewIndex = new Dictionary<int, int>();
 
-            foreach (var doc in documents)
+            for(int newIdx=0;newIdx<selectedAttributes.Count;newIdx++)
             {
-                var freqs = doc.WordFrequencies.Select(kvp => $"{kvp.Key}:{kvp.Value}");
-                string vectorStr = string.Join(" ", freqs);
-
-                string line = $"{doc.Name} # {vectorStr} # {doc.TargetClass} # {doc.Folder}";
-                newFileLines.Add(line);
+                int oldIdx = selectedAttributes[newIdx].OriginalIndex;
+                oldToNewIndex[oldIdx] = newIdx;
             }
 
-            string outputFilePath = @"C:\Users\Mihnea\Desktop\Reuters\rezultat_ig.txt";
-            File.WriteAllLines(outputFilePath, newFileLines);
+            foreach(var doc in documents)
+            {
+                Dictionary<int, int> newFrequencies = new Dictionary<int, int>();
 
+                foreach (var kvp in doc.WordFrequencies)
+                {
+                    int oldIndex = kvp.Key;
+                    int wordCount = kvp.Value;
+
+                    if(oldToNewIndex.ContainsKey(oldIndex))
+                    {
+                        int newIndex = oldToNewIndex[oldIndex];
+                        newFrequencies[newIndex] = wordCount;
+                    }
+                }
+                doc.WordFrequencies = newFrequencies;
+            }
+
+            List<string> headerLines = new List<string>();
+
+            foreach(Attribute attr in selectedAttributes)
+            {
+                string formattedIG = attr.InfoGain.ToString("F6", System.Globalization.CultureInfo.InvariantCulture);
+                headerLines.Add($"@attribute {attr.Name} {formattedIG}");
+            }
+            headerLines.Add("");
+            headerLines.Add("@data");
+
+            List<string> trainLines = new List<string>(headerLines);
+            List<string> testLines = new List<string>(headerLines);
+
+            foreach(DocumentInfo doc in documents)
+            {
+                var sortedFreqs = doc.WordFrequencies.OrderBy(k => k.Key).Select(k => $"{k.Key}:{k.Value}");
+                string vectorStr = string.Join(" ", sortedFreqs);
+
+                string line = $"{doc.Name} # {vectorStr} # {doc.TargetClass} # {doc.Folder}";
+                if (doc.Folder.Equals("Training", StringComparison.OrdinalIgnoreCase))
+                {
+                    trainLines.Add(line);
+                }
+                else
+                {
+                    testLines.Add(line);
+                }
+            }
+            string trainPath = @"C:\Users\Mihnea\Desktop\Reuters\rezultat_train.txt";
+            string testPath = @"C:\Users\Mihnea\Desktop\Reuters\rezultat_test.txt";
+
+            File.WriteAllLines(trainPath, trainLines);
+            File.WriteAllLines(testPath, testLines);
         }
     }
 }

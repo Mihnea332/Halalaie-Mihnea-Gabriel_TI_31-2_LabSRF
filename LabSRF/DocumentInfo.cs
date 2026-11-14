@@ -13,6 +13,7 @@ namespace LabSRF
         public string TargetClass { get; set; }
         public string Folder { get; set; }
 
+        public Dictionary<int,double> NormalizedVector { get; set; }
         
     }
 }
