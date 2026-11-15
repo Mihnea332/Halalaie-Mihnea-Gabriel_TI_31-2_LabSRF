@@ -12,6 +12,7 @@ internal class Program
     static void Main()
     {
         //FeatureExtraction.Execute();
-        FeatureSelection.Execute();
+        //FeatureSelection.Execute();
+        DatasetQuerying.Execute();
     }
 }

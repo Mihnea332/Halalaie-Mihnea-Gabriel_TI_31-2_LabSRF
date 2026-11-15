@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Mihnea\\source\\repos\\LabSRF\\LabSRF\\LabSRF.csproj": {}
+    "C:\\Users\\vampi\\source\\repos\\Mihnea332\\Halalaie-Mihnea-Gabriel_TI_31-2_LabSRF\\LabSRF\\LabSRF.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Mihnea\\source\\repos\\LabSRF\\LabSRF\\LabSRF.csproj": {
+    "C:\\Users\\vampi\\source\\repos\\Mihnea332\\Halalaie-Mihnea-Gabriel_TI_31-2_LabSRF\\LabSRF\\LabSRF.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Mihnea\\source\\repos\\LabSRF\\LabSRF\\LabSRF.csproj",
+        "projectUniqueName": "C:\\Users\\vampi\\source\\repos\\Mihnea332\\Halalaie-Mihnea-Gabriel_TI_31-2_LabSRF\\LabSRF\\LabSRF.csproj",
         "projectName": "LabSRF",
-        "projectPath": "C:\\Users\\Mihnea\\source\\repos\\LabSRF\\LabSRF\\LabSRF.csproj",
-        "packagesPath": "C:\\Users\\Mihnea\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Mihnea\\source\\repos\\LabSRF\\LabSRF\\obj\\",
+        "projectPath": "C:\\Users\\vampi\\source\\repos\\Mihnea332\\Halalaie-Mihnea-Gabriel_TI_31-2_LabSRF\\LabSRF\\LabSRF.csproj",
+        "packagesPath": "C:\\Users\\vampi\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\vampi\\source\\repos\\Mihnea332\\Halalaie-Mihnea-Gabriel_TI_31-2_LabSRF\\LabSRF\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Mihnea\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\vampi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -39,7 +39,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -60,7 +61,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

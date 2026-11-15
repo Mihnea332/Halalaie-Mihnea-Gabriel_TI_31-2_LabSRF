@@ -14,6 +14,18 @@ namespace LabSRF
         public string Folder { get; set; }
 
         public Dictionary<int,double> NormalizedVector { get; set; }
-        
+
+        public DocumentInfo()
+        {
+
+        }
+        public DocumentInfo (string name,Dictionary<int,int> wf,string tc,string f,Dictionary<int,double> nv)
+        {
+            Name = name;
+            WordFrequencies = wf;
+            TargetClass = tc;
+            Folder = f;
+            NormalizedVector = nv;
+        }
     }
 }
