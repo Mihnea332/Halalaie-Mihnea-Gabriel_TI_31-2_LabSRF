@@ -10,7 +10,7 @@ namespace LabSRF
     {
         public string Name { get; set; }
         public Dictionary<int, int> WordFrequencies { get; set; }
-        public string TargetClass { get; set; }
+        public List<string> TargetClasses { get; set; }
         public string Folder { get; set; }
 
         public Dictionary<int,double> NormalizedVector { get; set; }
@@ -19,11 +19,11 @@ namespace LabSRF
         {
 
         }
-        public DocumentInfo (string name,Dictionary<int,int> wf,string tc,string f,Dictionary<int,double> nv)
+        public DocumentInfo (string name,Dictionary<int,int> wf,List<string> tc,string f,Dictionary<int,double> nv)
         {
             Name = name;
             WordFrequencies = wf;
-            TargetClass = tc;
+            TargetClasses = tc;
             Folder = f;
             NormalizedVector = nv;
         }

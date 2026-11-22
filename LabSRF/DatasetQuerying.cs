@@ -29,14 +29,17 @@ namespace LabSRF
                 else if (isDataselection)
                 {
                     string[] parts = line.Split(new[] { '#' }, StringSplitOptions.RemoveEmptyEntries);
-                    if (parts.Length>=4)
+                    if (parts.Length >= 4)
                     {
-                        DocumentInfo doc = new DocumentInfo(parts[0].Trim(), new Dictionary<int, int>(), parts[2].Trim(), parts[3].Trim(), new Dictionary<int, double>());
+                        List<string> classes = parts[2].Trim()
+                         .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                         .ToList();
+                        DocumentInfo doc = new DocumentInfo(parts[0].Trim(), new Dictionary<int, int>(), classes, parts[3].Trim(), new Dictionary<int, double>());
                         string[] frequencies = parts[1].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach(string pair in frequencies)
+                        foreach (string pair in frequencies)
                         {
                             string[] keyValue = pair.Split(':');
-                            if (keyValue.Length==2)
+                            if (keyValue.Length == 2)
                             {
                                 int index = int.Parse(keyValue[0]);
                                 int count = int.Parse(keyValue[1]);
@@ -50,10 +53,10 @@ namespace LabSRF
             int totalDocs = documents.Count;
             double[] idfArray = new double[attributes.Count];
 
-            for (int i=0;i<attributes.Count;i++)
+            for (int i = 0; i < attributes.Count; i++)
             {
                 int docsWithWord = documents.Count(d => d.WordFrequencies.ContainsKey(i) && d.WordFrequencies[i] > 0);
-                if (docsWithWord>0)
+                if (docsWithWord > 0)
                 {
                     idfArray[i] = Math.Log((double)totalDocs / docsWithWord, 2);
                 }
@@ -62,14 +65,14 @@ namespace LabSRF
                     idfArray[i] = 0;
                 }
             }
-            foreach(var doc in documents)
+            foreach (var doc in documents)
             {
-                foreach(var kvp in doc.WordFrequencies)
+                foreach (var kvp in doc.WordFrequencies)
                 {
                     int wordIndex = kvp.Key;
                     int n = kvp.Value;
 
-                    if (n>0)
+                    if (n > 0)
                     {
                         double tf = 1.0 + Math.Log(1.0 + Math.Log(n, 2), 2);
                         doc.NormalizedVector[wordIndex] = tf * idfArray[wordIndex];
@@ -88,7 +91,7 @@ namespace LabSRF
             string[] words = query.ToLower().Split(separators, StringSplitOptions.RemoveEmptyEntries);
             Dictionary<string, int> queryFreqs = new Dictionary<string, int>();
             WordFrequency.PorterStemmer stemmer = new WordFrequency.PorterStemmer();
-            foreach(string word in words)
+            foreach (string word in words)
             {
                 string stemmedWord = stemmer.StemWord(word);
                 if (!queryFreqs.ContainsKey(stemmedWord))
@@ -99,14 +102,14 @@ namespace LabSRF
             }
             Dictionary<int, double> queryVector = new Dictionary<int, double>();
 
-            foreach(var kvp in queryFreqs)
+            foreach (var kvp in queryFreqs)
             {
                 string word = kvp.Key;
                 int n = kvp.Value;
 
                 int index = attributes.IndexOf(word);
 
-                if(index!=-1)
+                if (index != -1)
                 {
                     double tf = 1.0 + Math.Log(1.0 + Math.Log(n, 2), 2);
                     queryVector[index] = tf * idfArray[index];
@@ -114,7 +117,7 @@ namespace LabSRF
             }
             Console.WriteLine($"{queryVector.Count} words from the query exist in our vocabulary");
             double queryMagnitude = 0;
-            foreach(double val in queryVector.Values)
+            foreach (double val in queryVector.Values)
             {
                 queryMagnitude += val * val;
             }
@@ -122,10 +125,10 @@ namespace LabSRF
             List<DocumentScore> similarityScores = new List<DocumentScore>();
             foreach (var doc in documents)
             {
-                double dotProduct=0;
-                double docMagnitude=0;
+                double dotProduct = 0;
+                double docMagnitude = 0;
 
-                foreach(double val in doc.NormalizedVector.Values)
+                foreach (double val in doc.NormalizedVector.Values)
                 {
                     docMagnitude += val * val;
                 }
@@ -134,13 +137,13 @@ namespace LabSRF
                 {
                     int index = kvp.Key;
                     double queryVal = kvp.Value;
-                    if(doc.NormalizedVector.ContainsKey(index))
+                    if (doc.NormalizedVector.ContainsKey(index))
                     {
                         dotProduct += queryVal * doc.NormalizedVector[index];
                     }
                 }
                 double similarity = 0;
-                if (queryMagnitude>0 && docMagnitude>0)
+                if (queryMagnitude > 0 && docMagnitude > 0)
                 {
                     similarity = dotProduct / (queryMagnitude * docMagnitude);
                 }
@@ -148,23 +151,23 @@ namespace LabSRF
             }
             var topDocuments = similarityScores.OrderByDescending(s => s.Score).ToList();
             bool foundMatches = false;
-            for (int i=0;i<10;i++)
+            for (int i = 0; i < 10; i++)
             {
-                if (topDocuments[i].Score>0)
+                if (topDocuments[i].Score > 0)
                 {
                     Console.WriteLine($"{i + 1}. Document: {topDocuments[i].Name} -> Similarity: {topDocuments[i].Score:F4}");
                     foundMatches = true;
                 }
             }
-            if(!foundMatches)
+            if (!foundMatches)
             {
                 Console.WriteLine("No articles match the query");
             }
         }
 
 
-       
-        
-       
+
+
+
     }
 }

@@ -9,28 +9,32 @@ namespace LabSRF
 {
     public class FeatureSelection
     {
-        
+
 
         public static double CalculateEntropy(List<DocumentInfo> docs)
         {
-            int totaldocs = docs.Count;
-            if (totaldocs == 0) return 0.0;
+            if (docs.Count == 0) return 0.0;
 
             Dictionary<string, int> classCounts = new Dictionary<string, int>();
+            int totalLabels = 0;
 
             foreach (var doc in docs)
             {
-                if (!classCounts.ContainsKey(doc.TargetClass))
+                foreach (var cls in doc.TargetClasses)
                 {
-                    classCounts[doc.TargetClass] = 0;
+                    if (!classCounts.ContainsKey(cls))
+                        classCounts[cls] = 0;
+                    classCounts[cls]++;
+                    totalLabels++;
                 }
-                classCounts[doc.TargetClass]++;
             }
+
+            if (totalLabels == 0) return 0.0;
 
             double entropy = 0.0;
             foreach (var count in classCounts.Values)
             {
-                double probability = (double)count / totaldocs;
+                double probability = (double)count / totalLabels;
                 entropy -= probability * Math.Log(probability, 2);
             }
             return entropy;
@@ -62,7 +66,8 @@ namespace LabSRF
                     {
                         DocumentInfo doc = new DocumentInfo();
                         doc.Name = parts[0].Trim();
-                        doc.TargetClass = parts[2].Trim();
+                        doc.TargetClasses = parts[2].Trim().
+                            Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
                         doc.Folder = parts[3].Trim();
                         doc.WordFrequencies = new Dictionary<int, int>();
 
@@ -157,7 +162,8 @@ namespace LabSRF
                 var sortedFreqs = doc.WordFrequencies.OrderBy(k => k.Key).Select(k => $"{k.Key}:{k.Value}");
                 string vectorStr = string.Join(" ", sortedFreqs);
 
-                string line = $"{doc.Name} # {vectorStr} # {doc.TargetClass} # {doc.Folder}";
+                string classes = string.Join(" ", doc.TargetClasses);
+                string line = $"{doc.Name} # {vectorStr} # {classes} # {doc.Folder}";
                 if (doc.Folder.Equals("Training", StringComparison.OrdinalIgnoreCase))
                 {
                     trainLines.Add(line);
